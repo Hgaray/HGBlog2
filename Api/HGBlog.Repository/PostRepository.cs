@@ -18,52 +18,7 @@ namespace HGBlog.Repository
         }
 
 
-        public async Task<IEnumerable<Post>> GetAllPosts()
-        {
-
-            try
-            {
-                var state = _context.States.Where(x => x.Name == "Approved").FirstOrDefault();
-
-                var result = await _context.Posts.Where(x => x.State == state)
-                    .Include(x => x.State)
-                    .Include(a => a.User).Select(p =>
-                    new Post
-                    {
-                        Id = p.Id,
-                        TitlePost = p.TitlePost,
-                        PostText = p.PostText,
-                        CreationDate = p.CreationDate,
-                        State = new State
-                        {
-                            Id = p.State.Id,
-                            Name = p.State.Name
-                        },
-                        User = new User
-                        {
-                            Id = p.User.Id,
-                            Name = p.User.Name,
-                            LastName = p.User.LastName
-                        },
-                        Comments = _context.Comments.Where(a => a.PostId == p.Id).Select(g => new Comment
-                        {
-                            Id = g.Id,
-                            Detail = g.Detail,
-                            PostId = g.PostId
-                        }).ToList()
-
-                    }).AsNoTracking().ToListAsync();
-
-                return await Task.FromResult(result);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
-        }
+       
 
         public async Task<Post> CreatePost(Post post)
         {
@@ -249,6 +204,54 @@ namespace HGBlog.Repository
 
             }
             catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+
+        public async Task<IEnumerable<Post>> GetAllPosts()
+        {
+
+            try
+            {
+                var state = _context.States.Where(x => x.Name == "Approved").FirstOrDefault();
+
+                var result = await _context.Posts.Where(x => x.State == state)
+                    .Include(x => x.State)
+                    .Include(a => a.User).Select(p =>
+                    new Post
+                    {
+                        Id = p.Id,
+                        TitlePost = p.TitlePost,
+                        PostText = p.PostText,
+                        CreationDate = p.CreationDate,
+                        State = new State
+                        {
+                            Id = p.State.Id,
+                            Name = p.State.Name
+                        },
+                        User = new User
+                        {
+                            Id = p.User.Id,
+                            Name = p.User.Name,
+                            LastName = p.User.LastName
+                        },
+                        Comments = _context.Comments.Where(a => a.PostId == p.Id).Select(g => new Comment
+                        {
+                            Id = g.Id,
+                            Detail = g.Detail,
+                            PostId = g.PostId
+                        }).ToList()
+
+                    }).AsNoTracking().ToListAsync();
+
+                return await Task.FromResult(result);
+
+            }
+            catch (Exception ex)
             {
 
                 throw;
