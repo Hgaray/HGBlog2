@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.0.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HGBlog.DataAccess\HGBlog.DataAccess.csproj" />
+    <ProjectReference Include="..\HGBlog.Logic\HGBlog.Logic.csproj" />
+    <ProjectReference Include="..\HGBlog.Repository\HGBlog.Repository.csproj" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,1 @@
+﻿insert into tbComments values ('Comment 1',2)

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="159f2024-db78-455e-9c85-c1a0a2bbfaee" ChangeDateTime="02/24/2021 22:33:42">
+    <Property Name="ElementName" Value="[dbo].[tbUsers].[Ro]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[tbUsers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="RolId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="48f84834-c6b3-4b8b-b822-f23a7f9291f0" ChangeDateTime="02/24/2021 22:41:18">
+    <Property Name="ElementName" Value="[dbo].[tbPosts].[WriterId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[tbPosts]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="UserId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="fdbcc515-f732-4b4a-8ae9-2653b4bfb963" ChangeDateTime="02/25/2021 20:39:39">
+    <Property Name="ElementName" Value="[dbo].[tbPostComments].[postId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[tbPostComments]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PostId" />
+  </Operation>
+</Operations>
