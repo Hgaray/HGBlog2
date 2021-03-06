@@ -52,7 +52,7 @@ namespace HGBlog.Repository
                             PostId = g.PostId
                         }).ToList()
 
-                    }).ToListAsync();
+                    }).AsNoTracking().ToListAsync();
 
                 return await Task.FromResult(result);
 
@@ -100,23 +100,23 @@ namespace HGBlog.Repository
         }
 
 
-        public async Task<Post> UpdatePost(Post post)
+        public async Task<bool> UpdatePost(UpdatePostRequest post)
         {
             try
             {
-                var stateNewPost = _context.States.Where(x => x.Id == post.Id).FirstOrDefault();
-                var userUpdatePost = _context.Users.Where(x => x.Id == post.User.Id).FirstOrDefault();
 
-                var postToUpdate = _context.Posts.Where(x => x.Id == post.Id).FirstOrDefault();
+                var postToUpdate = _context.Posts.Where(x => x.Id == post.IdPost).FirstOrDefault();
+                var statePostToUpdate = _context.States.Where(x => x.Id == 1).FirstOrDefault();
+
 
                 postToUpdate.TitlePost = post.TitlePost;
-                postToUpdate.PostText = post.PostText;
-                postToUpdate.User = userUpdatePost;
+                postToUpdate.PostText = post.TextPost;
+                postToUpdate.State = statePostToUpdate;
                 postToUpdate.CreationDate = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
-                return post;
+                return true;
 
 
             }
@@ -181,14 +181,14 @@ namespace HGBlog.Repository
 
         }
 
-        public async Task<IEnumerable<Post>> GetPendingPosts()
+        public async Task<IEnumerable<Post>> GetPostsByState(int state)
         {
 
             try
             {
-                var state = _context.States.Where(x => x.Name == "Pending").FirstOrDefault();
+                var stateToFind = _context.States.Where(x => x.Id == state).FirstOrDefault();
 
-                var result = await _context.Posts.Where(x => x.State == state)
+                var result = await _context.Posts.Where(x => x.State == stateToFind)
                     .Include(x => x.State)
                     .Include(a => a.User).Select(p =>
                     new Post
@@ -207,9 +207,15 @@ namespace HGBlog.Repository
                             Id = p.User.Id,
                             Name = p.User.Name,
                             LastName = p.User.LastName
-                        }
+                        },
+                        Comments = _context.Comments.Where(a => a.PostId == p.Id).Select(g => new Comment
+                        {
+                            Id = g.Id,
+                            Detail = g.Detail,
+                            PostId = g.PostId
+                        }).AsNoTracking().ToList()
 
-                    }).ToListAsync();
+                    }).AsNoTracking().ToListAsync();
 
                 return await Task.FromResult(result);
 

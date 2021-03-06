@@ -74,7 +74,7 @@ namespace HGBlogApi.Controllers.api
 
         }
 
-        
+
 
 
         [HttpPost("ApproveReject")]
@@ -106,16 +106,16 @@ namespace HGBlogApi.Controllers.api
             }
         }
 
-        [HttpGet("GetPendingPosts")]
+        [HttpGet("GetPostsByState")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetPendingPosts()
+        public async Task<ActionResult> GetPostsByState([FromQuery] int state)
         {
 
             try
             {
-                var result = await _postLogic.GetPendingPosts();
+                var result = await _postLogic.GetPostsByState(state);
 
                 if (result.Any())
                 {
@@ -162,26 +162,52 @@ namespace HGBlogApi.Controllers.api
         }
 
         [HttpDelete("DeletePost")]
-        public async Task<ActionResult> DeletePost(int idPost)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> DeletePost([FromQuery] int idPost)
         {
-            var result = await _postLogic.DeletePost(idPost);
-            return Ok(result);
+
+            try
+            {
+                var result = await _postLogic.DeletePost(idPost);
+                if (result)
+                {
+                    return Ok(result);
+                }
+                return BadRequest();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
         }
 
         [HttpPost("UpdatePost")]
-        public async Task<ActionResult> UpdatePost(Post post)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> UpdatePost(UpdatePostRequest post)
         {
 
             try
             {
                 var result = await _postLogic.UpdatePost(post);
-                return Ok(result);
+
+                if (result)
+                {
+                    return Ok(result);
+                }
+
+                return BadRequest();
 
             }
             catch (Exception)
             {
 
-                throw;
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 

@@ -14,11 +14,11 @@ namespace HGBlog.Repository
 
         Task<bool> DeletePost(int idPost);
 
-        Task<Post> UpdatePost(Post post);
+        Task<bool> UpdatePost(UpdatePostRequest post);
 
         Task<bool> UpdateStatePost(UpdateStatePostRequest parameters);
 
-        Task<IEnumerable<Post>> GetPendingPosts();
+        Task<IEnumerable<Post>> GetPostsByState(int state);
 
         Task<bool> SaveComment(Comment comment);
     }

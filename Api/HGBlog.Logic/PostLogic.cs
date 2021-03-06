@@ -56,7 +56,7 @@ namespace HGBlog.Logic
         }
 
 
-        public async Task<Post> UpdatePost(Post post)
+        public async Task<bool> UpdatePost(UpdatePostRequest post)
         {
             try
             {
@@ -83,11 +83,11 @@ namespace HGBlog.Logic
 
         }
 
-        public async Task<IEnumerable<Post>> GetPendingPosts()
+        public async Task<IEnumerable<Post>> GetPostsByState(int state)
         {
             try
             {
-                return await _repository.GetPendingPosts();
+                return await _repository.GetPostsByState(state);
             }
             catch (Exception)
             {

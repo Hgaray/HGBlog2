@@ -4,6 +4,6 @@
     [Detail] VARCHAR(MAX) NULL, 
     [PostId] INT NOT NULL,
 
-    Constraint [FK_Comment_Post] Foreign Key (PostId) References [tbPosts](Id),
+    Constraint [FK_Comment_Post] Foreign Key (PostId) References [tbPosts](Id) ON DELETE CASCADE,
 
 )

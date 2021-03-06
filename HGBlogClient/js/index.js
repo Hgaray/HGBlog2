@@ -1,26 +1,29 @@
 $(document).ready(function () {
   ///Please, type here Api's base URL.
+  localStorage.clear();
   localStorage.setItem("BaseUrl", "https://localhost:44326");
 
-  getAllPosts();
-  validateSession();
+  GetApprovePosts();
 
-  $(".witerUser").css({ display: "none" });
+  $(".writerUser").css({ display: "none" });
   $(".editorUser").css({ display: "none" });
 });
 
-function getAllPosts() {
+function GetApprovePosts() {
   var baseUrl = localStorage.getItem("BaseUrl");
   var listPost = "";
 
-  $.get(`${baseUrl}/api/Posts/GetAllPosts`, function (response) {
-    if (response) {
-      response.map((x) => {
-        listPost += drawPost(x, "Posts");
-      });
-      $("#posts").html(listPost);
+  $.get(
+    `${baseUrl}/api/Posts/GetPostsByState?state=2`,
+    function (response, status) {
+      if (response) {
+        response.map((x) => {
+          listPost += drawPost(x, "Posts");
+        });
+        $("#posts").html(listPost);
+      }
     }
-  });
+  );
 }
 
 function login() {
@@ -45,7 +48,7 @@ function login() {
         $("#spanName").text(result.name);
 
         $("#loging").css({ display: "none" });
-
+        GetApprovePosts();
         validRolUser();
       } else {
         alert("Invalid User");
@@ -60,7 +63,7 @@ function validRolUser() {
   var user = JSON.parse(localStorage.getItem("user"));
   console.log(user);
   if (user.rolId == 1) {
-    $(".witerUser").css({ display: "" });
+    $(".writerUser").css({ display: "" });
   } else {
     $(".editorUser").css({ display: "" });
   }
@@ -79,16 +82,19 @@ function getPendingPost() {
 
   var listPost = "";
 
-  $.get(`${baseUrl}/api/Posts/GetPendingPosts`, function (response, status) {
-    if (response) {
-      response.map((x) => {
-        listPost += drawPost(x, "Editor");
-      });
-      $("#pendingPosts").html(listPost);
-    } else if (status == "nocontent") {
-      $("#pendingPosts").html(listPost);
+  $.get(
+    `${baseUrl}/api/Posts/GetPostsByState?state=1`,
+    function (response, status) {
+      if (response) {
+        response.map((x) => {
+          listPost += drawPost(x, "Editor");
+        });
+        $("#pendingPosts").html(listPost);
+      } else if (status == "nocontent") {
+        $("#pendingPosts").html(listPost);
+      }
     }
-  });
+  );
 }
 
 function savePost() {
@@ -202,7 +208,86 @@ function saveComment(event) {
   })
     .done(function (result) {
       if (result) {
-        getAllPosts();
+        GetApprovePosts();
+      } else {
+        alert("error");
+      }
+    })
+    .fail(function () {
+      console.log("error");
+    });
+}
+
+function getRejectedPost() {
+  var baseUrl = localStorage.getItem("BaseUrl");
+
+  var listPost = "";
+
+  $.get(
+    `${baseUrl}/api/Posts/GetPostsByState?state=3`,
+    function (response, status) {
+      if (response) {
+        response.map((x) => {
+          listPost += drawPost(x, "Writer");
+        });
+        $("#rejectedPosts").html(listPost);
+      } else if (status == "nocontent") {
+        $("#rejectedPosts").html(listPost);
+      }
+    }
+  );
+}
+
+
+function deletePost(event){
+  var idPost= Number(event.target.id);
+
+  var baseUrl = localStorage.getItem("BaseUrl");
+
+
+    $.ajax({
+      type: "DELETE",
+      contentType: "application/json",
+      datatype: "json",
+      url: `${baseUrl}/api/Posts/DeletePost?idPost=${idPost}`
+    })
+      .done(function (result) {
+        if (result) {
+          GetApprovePosts();
+        } else {
+          alert("There is an error");
+        }
+      })
+      .fail(function () {
+        alert("error");
+      });
+
+}
+
+
+function UpdatePost(event){
+
+  var id = event.target.id;
+
+  var baseUrl = localStorage.getItem("BaseUrl");
+  var parameters = {
+    idPost: Number(id),
+    titlePost: $("#titleUpdate" + id).val(),
+    TextPost: $("#postUpdateText" + id).val(),
+  };
+
+  var data = JSON.stringify(parameters);
+
+  $.ajax({
+    type: "POST",
+    contentType: "application/json",
+    datatype: "json",
+    url: `${baseUrl}/api/Posts/UpdatePost`,
+    data: data,
+  })
+    .done(function (result) {
+      if (result) {
+        getRejectedPost();
       } else {
         alert("error");
       }
@@ -248,10 +333,22 @@ function drawPost(data, mode = "") {
       break;
 
     case "Posts":
+      var user = JSON.parse(localStorage.getItem("user"));
+      var deleteButton = "";
+      if (user && user.rolId == 2) {
+        deleteButton =`
+        <a id="${data.id}" href="#" class="btn btn-primary btn-lg" onclick="deletePost(event)">Delete</a>` 
+      }
+
       var comments = "";
-      data.comments.map((x) => {
-        comments += `<p class="font-weight-light comments"> ${x.detail}</p>`;
-      });
+
+      if (data.comments) {
+        data.comments.map((x) => {
+          comments += `<p class="font-weight-light comments"> ${x.detail}</p>`;
+        });
+      } else {
+        comments = `<p class="font-weight-light comments">No Comments</p>`;
+      }
 
       result = `
           <div class="accordion accordion-flush" id="accordionFlushExample">
@@ -281,6 +378,7 @@ function drawPost(data, mode = "") {
                             </div>
                             <div >
                               <a id="${data.id}" href="#" class="btn btn-primary btn-lg" onclick="saveComment(event)">Save Comment</a>
+                              ${deleteButton}
                             </div>
 
                             <div id="commentsSaved" class="form col-md-12"> ${comments}</div>
@@ -293,6 +391,26 @@ function drawPost(data, mode = "") {
               </div>
           </div>
           </div>`;
+      break;
+
+    case "Writer":
+      result = `<div>
+            
+
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon3">Title Post</span>
+        <input type="text" class="form-control" id="titleUpdate${data.id}" aria-describedby="basic-addon3" value="${data.titlePost}">
+      </div>
+      
+      <div class="input-group">
+        <span class="input-group-text">Post</span>
+        <textarea class="form-control" aria-label="With textarea" id="postUpdateText${data.id}">${data.postText}</textarea>
+      </div>
+      <div >
+        <a id="${data.id}" href="#" class="btn btn-primary btn-lg" onclick="UpdatePost(event)">Update Post</a>
+      </div>
+    </div>`;
+
       break;
   }
 
